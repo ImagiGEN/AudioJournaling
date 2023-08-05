@@ -8,3 +8,20 @@ services:
         - "8090:8090"
     env_file:
       - .env
+  postgresdb:
+    image: postgres
+    container_name: postgresdb
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+        - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+volumes:
+    postgres-db-volume:
