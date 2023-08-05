@@ -10,3 +10,9 @@ def create_user(db: Session, user: schemas.UserCreate):
     db.commit()
     db.refresh(db_user)
     return db_user
+
+def authenticate_user(db: Session, credentials: schemas.UserAuthentication):
+    result_user = db.query(models.User).filter(models.User.username == credentials.username).first()
+    if not result_user:
+        return False
+    return result_user.check_password(credentials.password)
