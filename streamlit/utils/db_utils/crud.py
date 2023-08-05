@@ -3,6 +3,8 @@ from utils.db_utils import models, schemas
 from utils import generic
 
 def create_user(db: Session, user: schemas.UserCreate):
+    if user.cnf_password != user.password:
+        raise Exception("Passwords do not match!")
     db_user = models.User(username=user.username,
                           first_name=user.firstname,
                           last_name=user.lastname,

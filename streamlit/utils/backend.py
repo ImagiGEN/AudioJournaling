@@ -12,7 +12,7 @@ def create_user(username, password, cnf_password, firstname, lastname):
         "lastname": lastname
     }
     user = schemas.UserCreate(**data)
-    crud.create_user(db, user)
+    return crud.create_user(db, user).__dict__
 
 def authenticate_user(username, password):
     db = SessionLocal()
