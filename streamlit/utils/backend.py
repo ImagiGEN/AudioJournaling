@@ -23,5 +23,12 @@ def authenticate_user(username, password):
     creds = schemas.UserAuthentication(**data)
     return crud.authenticate_user(db, creds)
 
+def validate_access_token(access_token):
+    db = SessionLocal()
+    return crud.validate_access_token(db, access_token)
+
+
 # create_user("ashritha@gmail.com", "ashritha", "ashritha", "ashritha", "ashritha")
-# print(authenticate_user("ashritha@gmail.com", "ashritha"))
+# jwt_token = authenticate_user("ashritha@gmail.com", "ashritha")
+# print(validate_access_token(jwt_token))
+
