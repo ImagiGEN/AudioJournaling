@@ -1,0 +1,5 @@
+kaggle
+google-cloud-storage
+python-dotenv
+# os
+pinecone-client
