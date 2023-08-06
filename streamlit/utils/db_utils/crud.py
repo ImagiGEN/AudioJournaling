@@ -33,6 +33,8 @@ def generate_jwt_token(username, password):
     return access_token
 
 def validate_access_token(db: Session, access_token: str):
+    if not access_token:
+        return False
     decoded_data = generic.decode_token(access_token)
     generic.compare_time(decoded_data["exp"])
     username = decoded_data["username"]
@@ -42,4 +44,4 @@ def validate_access_token(db: Session, access_token: str):
             models.User.hashed_password == hashed_password).first()
     if not result_user:
         return False
-    return True
+    return result_user.first_name + " " + result_user.last_name
