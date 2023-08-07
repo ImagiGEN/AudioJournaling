@@ -19,5 +19,9 @@ st.markdown(
     """
 )
 
+# Initialization
+if 'auth_token' not in st.session_state:
+    st.session_state.auth_token = None
+
 # Run the app
 # streamlit run main.py
