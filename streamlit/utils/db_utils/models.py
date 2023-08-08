@@ -1,9 +1,9 @@
 from utils.db_utils import Base
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from datetime import datetime
 from utils.generic import parse_timestamp, get_hashed_password
 import bcrypt
-from sqlalchemy.orm import validates
+from sqlalchemy.orm import validates, relationship
 import re
 
 
@@ -15,6 +15,7 @@ class User(Base):
     password_hash = Column(String(100), nullable=False)
     first_name = Column(String(100), nullable=False)
     last_name = Column(String(100), nullable=False)
+    audios = relationship('UserAudioMetadata', backref='user')
 
     def __init__(self, username, first_name, last_name, password):
         self.username = username
@@ -92,3 +93,27 @@ class User(Base):
             raise Exception(
                 'Password must be between 8 and 50 characters')
         self.password_hash = get_hashed_password(password).decode('utf-8')
+
+
+class UserAudioMetadata(Base):
+    __tablename__ = 'users_audio_metadata'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    file_url = Column(String(500), unique=True, nullable=False)
+    timestamp = Column(DateTime, nullable=False, default=datetime.now())
+    user_id = Column(
+        Integer, ForeignKey('users.id'), nullable=False)
+    
+    def __init__(self, file_url, user_id):
+        self.file_url = file_url
+        self.timestamp = datetime.now()
+        self.user_id = user_id
+
+    @validates('file_url')
+    def validate_name(self, key, file_url):
+        if not file_url:
+            raise Exception('name can\'t be empty')
+
+        if not isinstance(file_url, str):
+            raise Exception('File URL should be a string')
+        return file_url

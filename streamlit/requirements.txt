@@ -5,3 +5,4 @@ sqlalchemy
 pydantic
 psycopg2
 python-jose
+google-cloud-storage

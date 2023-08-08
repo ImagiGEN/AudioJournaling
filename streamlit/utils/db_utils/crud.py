@@ -19,15 +19,16 @@ def authenticate_user(db: Session, credentials: schemas.UserAuthentication):
     if not result_user: # username doesn't exists
         return
     if result_user.check_password(credentials.password):
-        return generate_jwt_token(credentials.username, credentials.password)
+        return generate_jwt_token(credentials.username, credentials.password, result_user.id)
 
-def generate_jwt_token(username, password):
+def generate_jwt_token(username, password, user_id):
     if not (username and password):
         raise Exception(
             status_code=404, detail=r"Username and password cannot be empty")
     data_to_encode = {
         "username": username,
-        "password": generic.get_hashed_password(password).decode('utf-8')
+        "password": generic.get_hashed_password(password).decode('utf-8'),
+        "user_id": user_id
     }
     access_token = generic.create_access_token(data_to_encode)
     return access_token
@@ -45,3 +46,12 @@ def validate_access_token(db: Session, access_token: str):
     if not result_user:
         return False
     return result_user.first_name + " " + result_user.last_name
+
+def add_audio_metadata(db: Session, audio: schemas.UserAudioMetadata):
+
+    db_audio = models.UserAudioMetadata(file_url=audio.file_url,
+                                       user_id=audio.user_id)
+    db.add(db_audio)
+    db.commit()
+    db.refresh(db_audio)
+    return db_audio
