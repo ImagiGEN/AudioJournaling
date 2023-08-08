@@ -55,3 +55,8 @@ def add_audio_metadata(db: Session, audio: schemas.UserAudioMetadata):
     db.commit()
     db.refresh(db_audio)
     return db_audio
+
+def get_journal_history(db: Session, user_input: schemas.UserAudioHistory):
+    db_audio_history = db.query(models.UserAudioMetadata).filter(user_input.user_id == models.UserAudioMetadata.user_id).all()
+    result = [{"file_url": row.file_url} for row in db_audio_history]
+    return result
