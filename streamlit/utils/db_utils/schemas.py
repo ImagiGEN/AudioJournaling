@@ -12,3 +12,7 @@ class UserCreate(UserBase):
 
 class UserAuthentication(UserBase):
     password: str
+
+class UserAudioMetadata(BaseModel):
+    file_url: str
+    user_id: int
