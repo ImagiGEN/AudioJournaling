@@ -9,3 +9,6 @@ class UserCreate(UserBase):
     cnf_password: str
     firstname: str
     lastname: str
+
+class UserAuthentication(UserBase):
+    password: str
