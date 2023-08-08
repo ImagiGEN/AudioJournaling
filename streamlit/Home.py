@@ -1,5 +1,8 @@
 import streamlit as st
 from dotenv import load_dotenv
+from utils.upload import upload_audio_page
+from utils.showaudio import show_audio_page
+
 
 load_dotenv()
 
@@ -20,8 +23,12 @@ st.markdown(
 )
 
 # Initialization
-if 'auth_token' not in st.session_state:
-    st.session_state.auth_token = None
+#if 'auth_token' not in st.session_state:
+#    st.session_state.auth_token = None
+pages = {
+    "Upload Audio": upload_audio_page,
+    "Audio Page": show_audio_page
+}
 
 # Run the app
 # streamlit run main.py
