@@ -1,4 +1,5 @@
 COMPOSE_BASE := docker-compose
+LOG_FILE := build.log
 
 init-venv:
 	python3 -m venv .venv

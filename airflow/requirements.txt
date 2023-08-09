@@ -3,3 +3,6 @@ google-cloud-storage
 python-dotenv
 # os
 pinecone-client
+panns-inference
+torch
+librosa
