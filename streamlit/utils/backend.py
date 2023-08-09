@@ -1,6 +1,7 @@
 from utils.db_utils import SessionLocal, crud, schemas, models, engine
 from utils.generic import decode_token
 from utils.gcp_utils import bucket
+from utils.pinecone_utils import get_similar_audios
 import os
 import uuid
 
@@ -66,3 +67,6 @@ def fetch_file_gcs(file_url):
 # from datetime import datetime, timedelta
 # audio_history = fetch_journal_history(jwt_token, datetime.now() - timedelta(1),datetime.now())
 # fetch_file_gcs(audio_history[1]['file_url'])
+
+# path='/Users/rishabhindoria/Documents/GitHub/AudioJournaling/airflow/dags/bucketdata1001_DFA_ANG_XX.wav'
+# print(get_similar_audios(path))
