@@ -13,7 +13,7 @@ COPY gcs_key.json ./
 
 
 RUN pip install -r requirements.txt
-# RUN pip install --upgrade google-cloud-storage
+RUN pip install --upgrade google-cloud-storage
 # Install the dependency
 
 ### Container Env same as local at this point
