@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 
 class UserBase(BaseModel):
@@ -15,4 +16,9 @@ class UserAuthentication(UserBase):
 
 class UserAudioMetadata(BaseModel):
     file_url: str
+    user_id: int
+
+class UserAudioHistory(BaseModel):
+    start_date: datetime
+    end_date: datetime
     user_id: int

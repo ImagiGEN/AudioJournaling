@@ -1,5 +1,7 @@
 import os
 import google.cloud.storage as gcs
+import soundfile as sf
+import io
 
 
 gcs_bucket_name = os.environ.get('GCS_BUCKET_NAME', 'damg7245-summer23-team2-audiojournaling')
@@ -42,3 +44,13 @@ def upload_blob(source_file_name, destination_blob_name):
     print(
         f"File {source_file_name} uploaded to {destination_blob_name}."
     )
+
+def download_sound_blob(source_file_name):
+    # read a blob
+    blob = bucket.blob(source_file_name)
+    file_as_string = blob.download_as_string()
+
+    # convert the string to bytes and then finally to audio samples as floats 
+    # and the audio sample rate
+    data, sample_rate = sf.read(io.BytesIO(file_as_string))
+    return data, sample_rate

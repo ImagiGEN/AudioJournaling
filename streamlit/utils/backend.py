@@ -43,7 +43,26 @@ def create_new_audio(audio_file_name, access_token):
     audio = schemas.UserAudioMetadata(**data)
     crud.add_audio_metadata(db, audio)
 
+def fetch_journal_history(access_token, start_date, end_date):
+    db = SessionLocal()
+    decoded_info = decode_token(access_token)
+    data = {
+        "start_date": start_date,
+        "end_date" : end_date,
+        "user_id": decoded_info.get("user_id")
+    }
+    user_input = schemas.UserAudioHistory(**data)
+    return crud.get_journal_history(db, user_input)
+
+def fetch_file_gcs(file_url):
+    data, sr = bucket.download_sound_blob(file_url)
+    return data, sr
+
+
 # create_user("ashritha@gmail.com", "ashritha", "ashritha", "ashritha", "ashritha")
 # jwt_token = authenticate_user("ashritha@gmail.com", "ashritha")
 # print(validate_access_token(jwt_token))
 # create_new_audio("/Users/sayalidalvi/ashritha/Project_old/audio_journaling/archive/Actor_01/03-01-04-02-01-01-01.wav", jwt_token)
+# from datetime import datetime, timedelta
+# audio_history = fetch_journal_history(jwt_token, datetime.now() - timedelta(1),datetime.now())
+# fetch_file_gcs(audio_history[1]['file_url'])
