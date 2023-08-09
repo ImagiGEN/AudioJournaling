@@ -7,6 +7,8 @@ import google.cloud.storage as gcs
 from dotenv import load_dotenv
 from utils.db_utils import engine
 from sqlalchemy import text
+import uuid
+from time import sleep
 # Load variables from .env file
 load_dotenv()
 
@@ -31,6 +33,11 @@ def fetch_metadata():
     result = [row for row in rs]
     return result
 
+def update_gcp_url(url, path):
+    with engine.connect() as con:
+        rs = con.execute(text(f'update audio_data_metadata SET gcp_url=\'{url}\' WHERE path=\'{path}\''))
+    
+
 def initialize_bucket():
     try:
         bucket.reload()
@@ -54,9 +61,14 @@ def upload_to_gcs():
     initialize_bucket()
     data_df = fetch_metadata()
     for row in data_df:
-        print(f"Uploading file: {row.path}")
-        blob = bucket.blob(row.path[1:])
-        blob.upload_from_filename(row.path)
+        sleep(1)
+        path_split = row.path.split("/")
+        path_split.insert(-1, str(uuid.uuid4()))
+        destination_path = "/".join(path_split)[1:]
+        print(f"Uploading file: {row.path}, to: {destination_path}")
+        blob = bucket.blob(destination_path)
+        blob.upload_from_filename(row.path, timeout=120, num_retries=10)
+        update_gcp_url(destination_path, row.path)
     print("Data uploaded to Google Cloud Storage.")
 
 dag = DAG('kaggle_to_gcs', default_args=default_args, schedule_interval=None)

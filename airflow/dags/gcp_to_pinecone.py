@@ -6,11 +6,11 @@ import google.cloud.storage as gcs
 import pinecone
 from panns_inference import AudioTagging
 from dotenv import load_dotenv
-import librosa
 import numpy as np
 from tqdm.auto import tqdm
 from utils.db_utils import engine
 from airflow.models.baseoperator import chain
+import librosa
 
 
 # Load variables from .env file
@@ -19,7 +19,7 @@ load_dotenv()
 gcs_bucket_name = os.getenv('GCS_BUCKET_NAME', 'damg7245-summer23-team2-dataset')
 gcs_project_id = os.getenv('GOOGLE_CLOUD_PROJECT', 'damg-soundjot')
 pinecone_index = os.getenv('PINECONE_INDEX', 'audio-embeddings')
-pinecone_api_key = os.getenv('PINECONE_API_KEY')
+pinecone_api_key = os.getenv('PINECONE_API_KEY', "d28abaee-e61a-4eef-9d3b-2d26cbf3376b")
 pinecone_environment = os.getenv('PINECONE_ENVIRONMENT', 'asia-southeast1-gcp-free')
 # Initialize Google Cloud Storage client
 storage_client = gcs.Client(project=gcs_project_id)
@@ -43,12 +43,13 @@ def fetch_data_from_gcs():
     data_metadata = fetch_metadata()
     for row in data_metadata:
 
-        if not os.path.exists(row.path.split("/")[:-1]):
-            os.makedirs(row.path.split("/")[:-1])
-        if row.path == "./data/audio_speech_actors_01-24/Actor_01/03-01-05-01-02-02-01.wav":
-            print(f"Downloading file: {row.path}")
-            blob = bucket.blob(row.path[1:])
-            blob.download_to_filename(row.path)
+        if not os.path.exists("/".join(row.path.split("/")[:-1])):
+            os.makedirs("/".join(row.path.split("/")[:-1]))
+        if not row.gcp_url:
+            continue
+        print(f"Downloading file: {row.gcp_url}")
+        blob = bucket.blob(row.gcp_url)
+        blob.download_to_filename(row.path)
 
 def initialize_pinecone():
     # Initialize Pinecone client
@@ -65,18 +66,20 @@ def initialize_pinecone():
         )
 
 def compute_embeddings():
+    initialize_pinecone()
     audio_tagging = AudioTagging(checkpoint_path=None, device='cuda')
     data_metadata = fetch_metadata()
-        
+    
     index = pinecone.Index(pinecone_index)
 
     for row in data_metadata:
-        if row.path == "./data/audio_speech_actors_01-24/Actor_01/03-01-05-01-02-02-01.wav":
-            y, _ = librosa.load(row.path, mono=True, sr=None)
-            print(f"Generating Embedding for: {row.path}")
-            _, emb = audio_tagging.inference(y[None, :])
-            to_upsert = [(str(row.id), emb.tolist())]
-            _ = index.upsert(vectors=to_upsert)
+        if not row.gcp_url:
+            continue
+        y, _ = librosa.load(row.path, mono=True, sr=None)
+        print(f"Generating Embedding for: {row.path}")
+        _, emb = audio_tagging.inference(y[None, :])
+        to_upsert = list([(str(row.path), emb.tolist())])
+        _ = index.upsert(vectors=to_upsert)
 
 
 # Create the DAG
