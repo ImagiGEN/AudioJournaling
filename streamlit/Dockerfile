@@ -9,6 +9,7 @@ COPY pages ./pages
 COPY utils ./utils
 # COPY .streamlit ./.streamlit
 # Copy source code and dependency
+COPY gcs_key.json ./
 
 
 RUN pip install -r requirements.txt

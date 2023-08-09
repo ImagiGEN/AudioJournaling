@@ -8,7 +8,7 @@ pytest:
 	pytest -v fastapi;
 
 build-up:
-	$(COMPOSE_BASE)	-f docker-compose-local.yml up -d --build;
+	$(COMPOSE_BASE)	-f docker-compose-local.yml up -d --build --remove-orphans;
 
 up:	
 	$(COMPOSE_BASE)	-f docker-compose-local.yml up -d;
