@@ -1,3 +1,8 @@
+kaggle
+google-cloud-storage
+pinecone-client
+panns-inference
+torch
+librosa
 python-dotenv
 pandas
-kaggle

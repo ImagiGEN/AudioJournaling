@@ -42,6 +42,7 @@ def compute_metadata(download_path):
     df3 = explore_TESS(download_path)
     df4 = explore_CREMAD(download_path)
     final_df = pd.concat([df1, df2, df3, df4])
+    final_df['gcp_url'] = None
     print(final_df.head())
     print(final_df.shape)
     save_to_sql(final_df)
