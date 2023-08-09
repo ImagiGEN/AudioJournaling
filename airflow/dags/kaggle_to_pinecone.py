@@ -8,6 +8,7 @@ from panns_inference import AudioTagging
 from dotenv import load_dotenv
 from utils.db_utils import engine
 from airflow.models.baseoperator import chain
+from kaggle.api.kaggle_api_extended import KaggleApi
 import librosa
 
 
@@ -37,17 +38,15 @@ def fetch_metadata():
     result = [row for row in rs]
     return result
 
-def fetch_data_from_gcs():
-    data_metadata = fetch_metadata()
-    for row in data_metadata:
-
-        if not os.path.exists("/".join(row.path.split("/")[:-1])):
-            os.makedirs("/".join(row.path.split("/")[:-1]))
-        if not row.gcp_url:
-            continue
-        print(f"Downloading file: {row.gcp_url}")
-        blob = bucket.blob(row.gcp_url)
-        blob.download_to_filename(row.path, num_retries=10)
+def fetch_from_kaggle(dataset_name, download_path):
+    api = KaggleApi()
+    api.authenticate()
+    data_name = dataset_name.split(',')
+    for dset in data_name:
+        print("dataset name")
+        print(dset)
+        api.dataset_download_files(dset, path=download_path, unzip=True)
+    print("Data fetched from Kaggle.")
 
 def initialize_pinecone():
     # Initialize Pinecone client
@@ -71,7 +70,7 @@ def compute_embeddings():
     index = pinecone.Index(pinecone_index)
 
     for row in data_metadata:
-        if not row.gcp_url:
+        if not row.path:
             continue
         y, _ = librosa.load(row.path, mono=True, sr=None)
         print(f"Generating Embedding for: {row.path}")
@@ -81,15 +80,15 @@ def compute_embeddings():
 
 
 # Create the DAG
-dag = DAG('gcs_to_pinecone', default_args=default_args, schedule_interval=None)
+dag = DAG('kaggle_to_pinecone', default_args=default_args, schedule_interval=None)
 
 # Define the task
-fetch_data_from_gcs_task = PythonOperator(
-    task_id='fetch_data_from_gcs',
-    python_callable=fetch_data_from_gcs,
-    provide_context=True,
+fetch_data_kaggle_task = PythonOperator(
+    task_id='fetch_data_task',
+    python_callable=fetch_from_kaggle,
     op_kwargs={
-        'data_dir': os.getenv("DATA_DOWNLOAD_PATH"),
+        'dataset_name': os.getenv("KAGGLE_DATASET_NAME"),
+        'download_path': os.getenv("DATA_DOWNLOAD_PATH"),
     },
     dag=dag,
 )
@@ -102,4 +101,4 @@ compute_embeddings_task = PythonOperator(
 )
 
 # Set task dependencies (there are no downstream tasks in this example)
-chain(fetch_data_from_gcs_task, compute_embeddings_task)
+chain(fetch_data_kaggle_task, compute_embeddings_task)

@@ -61,7 +61,6 @@ def upload_to_gcs():
     initialize_bucket()
     data_df = fetch_metadata()
     for row in data_df:
-        sleep(1)
         path_split = row.path.split("/")
         path_split.insert(-1, str(uuid.uuid4()))
         destination_path = "/".join(path_split)[1:]
