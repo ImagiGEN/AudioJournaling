@@ -5,12 +5,13 @@ from airflow.operators.python import PythonOperator
 from kaggle.api.kaggle_api_extended import KaggleApi
 import google.cloud.storage as gcs
 from dotenv import load_dotenv
-
+from utils.db_utils import engine
+from sqlalchemy import text
 # Load variables from .env file
 load_dotenv()
 
-gcs_bucket_name = os.getenv('GCS_BUCKET_NAME', 'soundjot_audio_bucket')
-gcs_project_id = os.getenv('GOOGLE_CLOUD_PROJECT', 'soundjot')
+gcs_bucket_name = os.getenv('GCS_BUCKET_NAME', 'damg7245-summer23-team2-dataset')
+gcs_project_id = os.getenv('GOOGLE_CLOUD_PROJECT', 'damg-soundjot')
 
 storage_client = gcs.Client(project=gcs_project_id)
 bucket = storage_client.bucket(gcs_bucket_name)
@@ -24,6 +25,21 @@ default_args = {
     'retries': 1,
 }
 
+def fetch_metadata():
+    with engine.connect() as con:
+        rs = con.execute(text('select * from audio_data_metadata'))
+    result = [row for row in rs]
+    return result
+
+def initialize_bucket():
+    try:
+        bucket.reload()
+        print(f'Bucket {gcs_bucket_name} exists.')
+    except:
+        print(f'Bucket {gcs_bucket_name} does not exist.')
+        bucket.storage_class = "STANDARD"
+        storage_client.create_bucket(bucket, location="us-east1")
+
 def fetch_from_kaggle(dataset_name, download_path):
     api = KaggleApi()
     api.authenticate()
@@ -34,29 +50,14 @@ def fetch_from_kaggle(dataset_name, download_path):
         api.dataset_download_files(dset, path=download_path, unzip=True)
     print("Data fetched from Kaggle.")
 
-def upload_to_gcs(source_file_path):
-    paths = traverse_directory(source_file_path)
-    try:
-        bucket.reload()
-        print(f'Bucket {gcs_bucket_name} exists.')
-    except:
-        print(f'Bucket {gcs_bucket_name} does not exist.')
-        bucket.storage_class = "STANDARD"
-        storage_client.create_bucket(bucket, location="us-central1")
-
-    for path in paths:
-        destination_blob_name = '/'.join(path.split('/')[-2:])
-        blob = bucket.blob(destination_blob_name)
-        blob.upload_from_filename(path)
+def upload_to_gcs():
+    initialize_bucket()
+    data_df = fetch_metadata()
+    for row in data_df:
+        print(f"Uploading file: {row.path}")
+        blob = bucket.blob(row.path[1:])
+        blob.upload_from_filename(row.path)
     print("Data uploaded to Google Cloud Storage.")
-
-def traverse_directory(path):
-    paths = []
-    for root, dirs, files in os.walk(path):
-        for file in files:
-            file_path = os.path.join(root, file)
-            paths.append(file_path)
-    return paths
 
 dag = DAG('kaggle_to_gcs', default_args=default_args, schedule_interval=None)
 
@@ -65,7 +66,7 @@ fetch_data_task = PythonOperator(
     python_callable=fetch_from_kaggle,
     op_kwargs={
         'dataset_name': os.getenv("KAGGLE_DATASET_NAME"),
-        'download_path': os.getenv("DOWNLOAD_PATH"),
+        'download_path': os.getenv("DATA_DOWNLOAD_PATH"),
     },
     dag=dag,
 )
@@ -74,7 +75,7 @@ upload_to_gcs_task = PythonOperator(
     task_id='upload_to_gcs_task',
     python_callable=upload_to_gcs,
     op_kwargs={
-        'source_file_path': os.getenv("SOURCE_FILE_PATH"),
+        'source_file_path': os.getenv("DATA_DOWNLOAD_PATH"),
     },
     dag=dag,
 )
