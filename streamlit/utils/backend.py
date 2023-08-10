@@ -4,6 +4,7 @@ from utils.gcp_utils import bucket
 from utils.pinecone_utils import get_similar_audios
 import os
 import uuid
+from datetime import datetime, timedelta
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -35,7 +36,7 @@ def validate_access_token(access_token):
 def create_new_audio(audio_file_name, access_token):
     db = SessionLocal()
     decoded_info = decode_token(access_token)
-    destination_file_name = os.path.join(str(decoded_info.get("user_id")), str(uuid.uuid4()))
+    destination_file_name = os.path.join(str(decoded_info.get("user_id")), str(uuid.uuid4()),audio_file_name.split("/")[-1])
     bucket.upload_blob(audio_file_name, destination_file_name)
     data = {
         "file_url": destination_file_name,
@@ -44,7 +45,7 @@ def create_new_audio(audio_file_name, access_token):
     audio = schemas.UserAudioMetadata(**data)
     crud.add_audio_metadata(db, audio)
 
-def fetch_journal_history(access_token, start_date, end_date):
+def fetch_journal_history(access_token, start_date=datetime.now() - timedelta(5), end_date = datetime.now()):
     db = SessionLocal()
     decoded_info = decode_token(access_token)
     data = {
@@ -56,8 +57,8 @@ def fetch_journal_history(access_token, start_date, end_date):
     return crud.get_journal_history(db, user_input)
 
 def fetch_file_gcs(file_url):
-    data, sr = bucket.download_sound_blob(file_url)
-    return data, sr
+    file_name = bucket.download_as_file(file_url)
+    return file_name
 
 
 # create_user("ashritha@gmail.com", "ashritha", "ashritha", "ashritha", "ashritha")
@@ -66,7 +67,7 @@ def fetch_file_gcs(file_url):
 # create_new_audio("/Users/sayalidalvi/ashritha/Project_old/audio_journaling/archive/Actor_01/03-01-04-02-01-01-01.wav", jwt_token)
 # from datetime import datetime, timedelta
 # audio_history = fetch_journal_history(jwt_token, datetime.now() - timedelta(1),datetime.now())
-# fetch_file_gcs(audio_history[1]['file_url'])
+# fetch_file_gcs(audio_history[13]['file_url'])
 
 # path='/Users/rishabhindoria/Documents/GitHub/AudioJournaling/airflow/dags/bucketdata1001_DFA_ANG_XX.wav'
 # print(get_similar_audios(path))

@@ -5,6 +5,8 @@ import os
 import io
 from datetime import datetime
 from audio_recorder_streamlit import audio_recorder
+from utils import backend
+import uuid
 
 # Function to calculate audio duration
 def get_audio_duration(audio_data):
@@ -12,10 +14,14 @@ def get_audio_duration(audio_data):
     duration = len(y) / sr
     return duration
 
-page_names = ['UploadAudio', 'RecordAudio'] 
-page = st.radio('Select one', page_names)
+def save_audio(audio_data, sr=44100):
+    file_name = f"{timestamp}_{str(uuid.uuid4())}.wav"
+    sf.write(file_name, audio_data, sr)
+    backend.create_new_audio(file_name, st.session_state.auth_token)
 
-timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+def authentication():
+    response = backend.validate_access_token(st.session_state.auth_token)
+    return response
 
 def upload_audio_page():
     st.write("This is the upload audio page.")
@@ -33,16 +39,11 @@ def upload_audio_page():
 
             # Save the audio file to a local path if the "Submit Uploaded File" button is clicked
             if st.button("Submit Uploaded File"):
-                
-                #audio_path = f"uploaded_audio.{uploaded_file.name.split('.')[-1]}"
-                audio_path = f"uploaded_audio_{timestamp}.{uploaded_file.name.split('.')[-1]}"
-                with open(audio_path, 'wb') as f:
-                    f.write(uploaded_file.read())
-                st.write(f"Audio file saved at: {audio_path}")
-
+                audio_data, sr = sf.read(uploaded_file)
+                save_audio(audio_data, sr)
+                st.success('Noted your journal!', icon="✅")
         except Exception as e:
             st.error(f"Error reading the audio file: {e}")
-
 
 def upload_live_page():
     st.write('Please click on the microphone to start recording')
@@ -50,8 +51,7 @@ def upload_live_page():
     audio_bytes = audio_recorder()
 
     if audio_bytes is not None:
-        default_sample_rate = 44100
-        audio_data, _ = sf.read(io.BytesIO(audio_bytes))
+        audio_data, sr = sf.read(io.BytesIO(audio_bytes))
 
         if audio_data is not None and hasattr(audio_data, 'shape'):
             
@@ -60,16 +60,22 @@ def upload_live_page():
             
             st.audio(audio_bytes, format="audio/wav")
             if st.button("Submit Live Audio"): 
-            # Save the audio file to a local path
-             audio_path = f"recorded_audio_{timestamp}.wav"
-             sf.write(audio_path, audio_data, default_sample_rate)
-
-             st.write(f"Audio file saved at: {audio_path}")
-
+                save_audio(audio_data, sr)
+                st.success('Noted your journal!', icon="✅")
         else:
             st.error("No audio recorded.")
 
-if page == 'UploadAudio':
-    upload_audio_page()
+auth_user = authentication()
+
+if auth_user:
+    page_names = ['UploadAudio', 'RecordAudio'] 
+    page = st.radio('Select one', page_names)
+
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+
+    if page == 'UploadAudio':
+        upload_audio_page()
+    else:
+        upload_live_page()
 else:
-    upload_live_page()
+    st.warning('Access Denied! Please authenticate yourself on User Authentication.', icon="⚠️")
