@@ -13,3 +13,4 @@ panns-inference
 torch
 openai
 SpeechRecognition
+plotly
