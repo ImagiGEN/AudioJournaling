@@ -83,6 +83,18 @@ def process_user_audio(file_url):
     emotion = crud.get_emotion_audio_data(db, user_input)
     return transcript, emotion
 
+def get_user_emotions(access_token, start_date=datetime.now() - timedelta(7), end_date=datetime.now()):
+    db = SessionLocal()
+    decoded_info = decode_token(access_token)
+    data = {
+        "start_date": start_date,
+        "end_date" : end_date,
+        "user_id": decoded_info.get("user_id")
+    }
+    user_input = schemas.UserAudioHistory(**data)
+    emotions = crud.get_user_emotions(db, user_input)
+    return emotions
+
 # def generate_suggestion(audio_file, emotion):
 #     audio_transcript = get_audio_transcript(audio_file)
 
@@ -94,6 +106,7 @@ def process_user_audio(file_url):
 # from datetime import datetime, timedelta
 # audio_history = fetch_journal_history(jwt_token, datetime.now() - timedelta(1),datetime.now())
 # fetch_file_gcs(audio_history[13]['file_url'])
-
+# result = get_user_emotions(jwt_token)
+# print(result)
 # path='/Users/rishabhindoria/Documents/GitHub/AudioJournaling/airflow/dags/bucketdata1001_DFA_ANG_XX.wav'
 # print(get_similar_audios(path))
