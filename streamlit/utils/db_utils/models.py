@@ -103,11 +103,16 @@ class UserAudioMetadata(Base):
     timestamp = Column(DateTime, nullable=False, default=datetime.now())
     user_id = Column(
         Integer, ForeignKey('users.id'), nullable=False)
+    emotion = Column(String(100))
     
     def __init__(self, file_url, user_id):
         self.file_url = file_url
         self.timestamp = datetime.now()
         self.user_id = user_id
+        self.emotion = None
+
+    def set_emotion(self, emotion):
+        self.emotion = emotion
 
     @validates('file_url')
     def validate_name(self, key, file_url):
@@ -117,3 +122,13 @@ class UserAudioMetadata(Base):
         if not isinstance(file_url, str):
             raise Exception('File URL should be a string')
         return file_url
+
+class AudioDataMetadata(Base):
+    __tablename__ = 'audio_data_metadata'
+
+    index = Column(Integer, primary_key=True, autoincrement=True)
+    gender = Column(String(100), nullable=False)
+    emotion = Column(String(100), nullable=False)
+    source = Column(String(100), nullable=False)
+    path = Column(String(500),unique = True, nullable=False)
+    gcp_url = Column(String(500), nullable=False)

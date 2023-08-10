@@ -11,3 +11,5 @@ audio_recorder_streamlit
 pinecone-client
 panns-inference
 torch
+openai
+SpeechRecognition

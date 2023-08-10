@@ -60,3 +60,18 @@ def get_journal_history(db: Session, user_input: schemas.UserAudioHistory):
     db_audio_history = db.query(models.UserAudioMetadata).filter(user_input.user_id == models.UserAudioMetadata.user_id).all()
     result = [{"id": row.id, "file_url": row.file_url} for row in db_audio_history]
     return result
+
+def set_emotion_user_audio(db: Session, user_input: schemas.UserAudioEmotion):
+    result = db.query(models.UserAudioMetadata).filter(
+        models.UserAudioMetadata.id == user_input.audio_id).first()
+    result.emotion = user_input.emotion
+    db.add(result)
+    db.commit()
+    db.refresh(result)
+    return result
+
+def get_emotion_audio_data(db: Session, user_input: schemas.DatasetAudio):
+    result = db.query(models.AudioDataMetadata).filter(models.AudioDataMetadata.path == user_input.audio_path).first()
+    if not result:
+        raise Exception("Dataset audio not found")
+    return result.emotion

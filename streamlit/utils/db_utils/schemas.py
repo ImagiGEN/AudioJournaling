@@ -22,3 +22,10 @@ class UserAudioHistory(BaseModel):
     start_date: datetime
     end_date: datetime
     user_id: int
+
+class UserAudioEmotion(BaseModel):
+    audio_id: int
+    emotion: str
+
+class DatasetAudio(BaseModel):
+    audio_path: str

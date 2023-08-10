@@ -17,7 +17,8 @@ def get_audio_duration(audio_data):
 def save_audio(audio_data, sr=44100):
     file_name = f"{timestamp}_{str(uuid.uuid4())}.wav"
     sf.write(file_name, audio_data, sr)
-    backend.create_new_audio(file_name, st.session_state.auth_token)
+    response = backend.create_new_audio(file_name, st.session_state.auth_token)
+    return response
 
 def authentication():
     response = backend.validate_access_token(st.session_state.auth_token)
@@ -40,8 +41,10 @@ def upload_audio_page():
             # Save the audio file to a local path if the "Submit Uploaded File" button is clicked
             if st.button("Submit Uploaded File"):
                 audio_data, sr = sf.read(uploaded_file)
-                save_audio(audio_data, sr)
+                with st.spinner("Saving to Journal..."):
+                    response = save_audio(audio_data, sr)
                 st.success('Noted your journal!', icon="✅")
+                st.success(f'{response}❕', icon='😇')
         except Exception as e:
             st.error(f"Error reading the audio file: {e}")
 
@@ -60,8 +63,10 @@ def upload_live_page():
             
             st.audio(audio_bytes, format="audio/wav")
             if st.button("Submit Live Audio"): 
-                save_audio(audio_data, sr)
+                with st.spinner("Saving to Journal..."):
+                    response = save_audio(audio_data, sr)
                 st.success('Noted your journal!', icon="✅")
+                st.success(f'{response}❕', icon='😇')
         else:
             st.error("No audio recorded.")
 
