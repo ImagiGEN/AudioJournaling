@@ -75,3 +75,14 @@ def get_emotion_audio_data(db: Session, user_input: schemas.DatasetAudio):
     if not result:
         raise Exception("Dataset audio not found")
     return result.emotion
+
+def get_user_emotions(db: Session, user_input: schemas.UserAudioHistory):
+    result = db.query(models.UserAudioMetadata).filter(
+        models.UserAudioMetadata.user_id == user_input.user_id,
+        models.UserAudioMetadata.timestamp.between(user_input.start_date, user_input.end_date)
+        ).all()
+    
+    return_result = dict()
+    for r in result:
+        return_result[r.emotion] = return_result.get(r.emotion, 0) + 1
+    return return_result
