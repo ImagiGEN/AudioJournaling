@@ -11,8 +11,14 @@ st.set_page_config(
 
 st.title("User Registration")
 
+# Initialization
+if 'auth_token' not in st.session_state:
+    st.session_state.auth_token = None
+
 def register_user():
     response = backend.create_user(username, password, cnf_password, firstname, lastname)
+    return response
+    st.write(response)
     if response.get("username"):
         return True
 
@@ -24,10 +30,11 @@ username = st.text_input('Username')
 password = st.text_input('Password', type='password')
 cnf_password = st.text_input('Confirm Password', type='password')
 if st.button("Sign Up"):
-    if register_user():
-        st.success('User Registered Successfully!', icon="✅")
+    response = register_user()
+    if response[0]:
+        st.success(f'User {response[1]} Registered Successfully!', icon="✅")
     else:
-        st.error('There was an error', icon="🚨")
+        st.error(f'There was an error. Details: {response[1]}', icon="🚨")
 
 # Run the app
 # streamlit run main.py

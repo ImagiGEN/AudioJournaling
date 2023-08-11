@@ -4,13 +4,13 @@ FROM python:3.9.13
 WORKDIR /app
 # Change the working dir inside the container - cd /app
 
+RUN apt-get update && apt-get install -y libsndfile1 flac
 COPY Home.py requirements.txt ./
 COPY pages ./pages
 COPY utils ./utils
 # COPY .streamlit ./.streamlit
 # Copy source code and dependency
 COPY gcs_key.json /
-
 
 RUN pip install -r requirements.txt
 RUN pip install --upgrade google-cloud-storage

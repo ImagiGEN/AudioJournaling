@@ -1,0 +1,21 @@
+sqlalchemy
+python-dotenv
+fastapi
+uvicorn
+gunicorn
+psycopg2
+# Dev Dependencies
+httpx
+pytest
+sqlmodel
+bcrypt
+python-jose
+pydantic
+google-cloud-storage
+soundfile
+pinecone-client
+panns-inference
+torch
+openai
+SpeechRecognition
+python-multipart

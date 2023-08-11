@@ -275,6 +275,18 @@ services:
       - .env
     volumes:
       - postgres-db-volume:/var/lib/postgresql/data
+  fastapi:
+    container_name: fastapi
+    build:
+        context: fastapi
+    restart: always
+    ports:
+        - "8095:8095"
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+    env_file:
+      - .env
 volumes:
     postgres-db-volume:
     postgres-db-volume-airflow:
