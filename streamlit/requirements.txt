@@ -1,14 +1,5 @@
 python-dotenv
 streamlit
-<<<<<<< Updated upstream
-=======
-bcrypt
-sqlalchemy
-pydantic
-psycopg2-binary
-python-jose
-google-cloud-storage
->>>>>>> Stashed changes
 soundfile
 audio_recorder_streamlit
 plotly

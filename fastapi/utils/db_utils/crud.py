@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from utils.db_utils import models, schemas
 from utils import generic
 from fastapi import HTTPException
+from datetime import datetime
 import os
 
 def create_user(db: Session, user: schemas.UserCreate):
@@ -74,10 +75,12 @@ def get_journal_history(db: Session, user_input: schemas.UserAudioHistory):
     result = [{"id": row.id, "file_url": row.file_url} for row in db_audio_history]
     return result
 
-def set_emotion_user_audio(db: Session, user_input: schemas.UserAudioEmotion):
+def set_audio_details(db: Session, user_input: schemas.UserAudioDetails):
     result = db.query(models.UserAudioMetadata).filter(
         models.UserAudioMetadata.id == user_input.audio_id).first()
     result.emotion = user_input.emotion
+    result.transcript = user_input.transcript
+    result.quote = user_input.quote
     db.add(result)
     db.commit()
     db.refresh(result)
@@ -100,3 +103,18 @@ def get_user_emotions(db: Session, user_input: schemas.UserAudioHistory):
     for r in result:
         return_result[r.emotion] = return_result.get(r.emotion, 0) + 1
     return return_result
+
+def get_journal_transcript_by_date(db: Session, user_input):
+    decoded_info = generic.decode_token(user_input.access_token)
+    selected_date = datetime.date(user_input.date)
+    s_date = datetime.combine(selected_date, datetime.min.time())
+    e_date = datetime.combine(selected_date, datetime.max.time())
+    print(s_date, e_date)
+    result = db.query(models.UserAudioMetadata).filter(
+        models.UserAudioMetadata.user_id == decoded_info.get("user_id"),
+        models.UserAudioMetadata.timestamp.between(s_date, e_date)
+        ).all()
+    return_result = []
+    for r in result:
+        return_result.append(r.transcript)
+    return "\n".join(return_result)

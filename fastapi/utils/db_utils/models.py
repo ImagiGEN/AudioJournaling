@@ -105,6 +105,8 @@ class UserAudioMetadata(Base):
     user_id = Column(
         Integer, ForeignKey('users.id'), nullable=False)
     emotion = Column(String(100))
+    transcript = Column(String(100000))
+    quote = Column(String(100000))
     
     def __init__(self, file_url, user_id):
         self.file_url = file_url
@@ -114,6 +116,9 @@ class UserAudioMetadata(Base):
 
     def set_emotion(self, emotion):
         self.emotion = emotion
+
+    def set_transcript(self, transcript):
+        self.transcript = transcript
 
     @validates('file_url')
     def validate_name(self, key, file_url):

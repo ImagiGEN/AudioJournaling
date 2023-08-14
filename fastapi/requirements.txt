@@ -19,3 +19,4 @@ torch
 openai
 SpeechRecognition
 python-multipart
+openai-whisper

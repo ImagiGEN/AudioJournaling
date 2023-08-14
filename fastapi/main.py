@@ -122,3 +122,14 @@ async def get_user_emotion_history(user_input: schemas.UserAudioHistory, db: Ses
         raise HTTPException(
                 status_code=500, detail=f"{str(e)}")
     return JSONResponse(content=result)
+
+@app.get("/api/v1/user/journal/transcript")
+async def get_journal_transcript(user_input: schemas.UserJournalByDate, db: Session = Depends(get_db)):
+    try:
+        result = journal.get_journal_by_date(db, user_input)
+    except HTTPException as e:
+        raise e
+    except Exception as e:
+        raise HTTPException(
+                status_code=500, detail=f"{str(e)}")
+    return JSONResponse(content=result)

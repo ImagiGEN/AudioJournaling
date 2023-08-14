@@ -3,6 +3,9 @@ from datetime import datetime, timedelta
 import requests
 import json
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BACKEND_API_URL = os.getenv("BACKEND_API_URL", "http://api:8095")
 
@@ -120,11 +123,29 @@ def fetch_audio_file(access_token, file_name):
         return True, "downloaded_audio.wav"
     else:
         return False, response.json().get("detail")
+    
+def get_journal_by_date(access_token, selected_date = datetime.now()):
+    url = f"{BACKEND_API_URL}/api/v1/user/journal/transcript"
+    if not access_token:
+        access_token = ""
+    payload  = {
+        "date": selected_date.isoformat(),
+        "access_token": access_token
+    }
+    print(selected_date.isoformat())
+    json_payload = json.dumps(payload)
+
+    response = requests.request("GET", url, headers=headers, data=json_payload)
+    if response.status_code == 200:
+        return True, response.json()
+    else:
+        return False, response.json().get("detail")
 # def generate_suggestion(audio_file, emotion):
 #     audio_transcript = get_audio_transcript(audio_file)
 
 # create_user("ashritha@gmail.com", "ashritha", "ashritha", "ashritha", "ashritha")
 # jwt_token = authenticate_user("ashritha@gmail.com", "ashritha")[1]
+# print(jwt_token)
 # print(validate_access_token(jwt_token))
 # result = create_new_audio("/Users/sayalidalvi/ashritha/Project_old/audio_journaling/archive/Actor_01/03-01-04-02-01-01-01.wav", jwt_token)
 # print(result)
@@ -136,3 +157,6 @@ def fetch_audio_file(access_token, file_name):
 # print(result)
 # path='/Users/rishabhindoria/Documents/GitHub/AudioJournaling/airflow/dags/bucketdata1001_DFA_ANG_XX.wav'
 # print(get_similar_audios(path))
+
+# results = get_journal_by_date(jwt_token, datetime.now() + timedelta(1))
+# print(results)
