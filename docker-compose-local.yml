@@ -287,6 +287,8 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    volumes:
+      - ./panns_data:/root/panns_data 
 volumes:
     postgres-db-volume:
     postgres-db-volume-airflow:

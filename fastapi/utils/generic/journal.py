@@ -36,7 +36,7 @@ def process_user_audio(db: Session, file_url):
     transcript = get_audio_transcript(local_file_name)
     audio_ids = get_similar_audios(local_file_name)
     data = {
-        "audio_path": audio_ids[0] 
+        "audio_path": audio_ids[0]
     }
     user_input = schemas.DatasetAudio(**data)
     emotion = crud.get_emotion_audio_data(db, user_input)
