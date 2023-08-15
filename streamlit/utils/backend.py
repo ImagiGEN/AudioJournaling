@@ -53,7 +53,7 @@ def validate_access_token(access_token):
 
     response = requests.request("GET", url, headers=headers, data=json_payload)
     if response.status_code == 200:
-        return True, response.json().get("username")
+        return True, response.json().get("name")
     else:
         return False, response.json().get("detail")
 

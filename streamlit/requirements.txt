@@ -3,3 +3,4 @@ streamlit
 soundfile
 audio_recorder_streamlit
 plotly
+streamlit_extras

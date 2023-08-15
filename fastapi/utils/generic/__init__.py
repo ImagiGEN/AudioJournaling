@@ -44,6 +44,6 @@ def get_audio_transcript(audio_file_name):
     r = sr.Recognizer()
     with sr.AudioFile(audio_file_name) as source:
         audio = r.record(source)  # read the entire audio file                  
-        transcript = r.recognize_whisper(audio)
+        transcript = r.recognize_google(audio)
         print("Transcription: " + transcript)
     return transcript

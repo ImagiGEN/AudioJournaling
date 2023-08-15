@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y libsndfile1 flac
 COPY Home.py requirements.txt ./
 COPY pages ./pages
 COPY utils ./utils
+COPY images ./images
 # COPY .streamlit ./.streamlit
 # Copy source code and dependency
 COPY gcs_key.json /

@@ -4,11 +4,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 st.set_page_config(
-    page_title="Home Page",
-    page_icon="👋",
+    page_title="SoundJot",
+    page_icon="🎧",
 )
-
-st.title("SoundJot")
+col1, col2, col3 = st.columns(3)
+with col2:
+    st.title("SoundJot")
 
 st.markdown(
     """
@@ -22,6 +23,11 @@ st.markdown(
 # Initialization
 if 'auth_token' not in st.session_state:
     st.session_state.auth_token = None
+
+from PIL import Image
+
+image = Image.open('./images/home_page.jpg')
+st.image(image)
 
 # Run the app
 # streamlit run main.py
