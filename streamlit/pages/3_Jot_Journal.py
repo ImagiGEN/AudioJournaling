@@ -54,8 +54,8 @@ def upload_audio_page():
                 with st.spinner("Saving to Journal..."):
                     response = save_audio(audio_data, sr)
                 if response[0]:
-                    st.success('Noted your journal!', icon="✅")
-                    st.success(f'{response[1]}❕', icon='😇')
+                    st.markdown('✅ Noted to your journal!')
+                    st.markdown(f'{response[1]}')
                 else:
                     st.error(f"Error saving your journal. Details: {response[1]}", icon="🚨")
         except Exception as e:
@@ -64,7 +64,7 @@ def upload_audio_page():
 def upload_live_page():
     st.write('To speak yout heart out please click on the microphone and start recording!')
     audio_data = None
-    audio_bytes = audio_recorder(text="")
+    audio_bytes = audio_recorder(text=" ")
 
     if audio_bytes is not None:
         audio_data, sr = sf.read(io.BytesIO(audio_bytes))
@@ -79,8 +79,8 @@ def upload_live_page():
                 with st.spinner("Saving to Journal..."):
                     response = save_audio(audio_data, sr)
                 if response[0]:
-                    st.success('Noted your journal!', icon="✅")
-                    st.success(f'{response[1]}❕', icon='😇')
+                    st.markdown('✅ Noted to your journal!')
+                    st.markdown(f'{response[1]}')
                 else:
                     st.error(f"Error saving your journal. Details: {response[1]}", icon="🚨")
         else:

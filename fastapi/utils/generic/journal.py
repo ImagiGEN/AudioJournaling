@@ -4,6 +4,7 @@ from utils.generic import decode_token, get_audio_transcript, llm
 from utils.gcp_utils import bucket
 from utils.db_utils import schemas, crud
 from utils.pinecone_utils import get_similar_audios
+from utils.generic import huggingface
 import uuid
 import speech_recognition as sr
 from datetime import datetime
@@ -34,12 +35,19 @@ def create_audio_journal_entry(db: Session, user_input: schemas.CreateAudioJourn
 def process_user_audio(db: Session, file_url):
     local_file_name = bucket.download_as_file(file_url)
     transcript = get_audio_transcript(local_file_name)
-    audio_ids = get_similar_audios(local_file_name)
-    data = {
-        "audio_path": audio_ids[0]
-    }
-    user_input = schemas.DatasetAudio(**data)
-    emotion = crud.get_emotion_audio_data(db, user_input)
+    print(f"Transcript: {transcript}")
+    try:
+        audio_ids = get_similar_audios(local_file_name)
+        print(f"Similar audios: {audio_ids}")
+        data = {
+            "audio_path": audio_ids[0]
+        }
+        user_input = schemas.DatasetAudio(**data)
+        emotion = crud.get_emotion_audio_data(db, user_input)
+        print(f"Emotion: {emotion}")
+    except Exception as e:
+        print("Exception: ", str(e))
+        emotion = huggingface.get_emotion(local_file_name)
     return transcript, emotion
 
 def get_journal_by_date(db: Session, user_input: schemas.UserJournalByDate):

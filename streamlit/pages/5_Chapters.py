@@ -38,7 +38,7 @@ if auth_user[0]:
             st.subheader("Summary of the day")
             st.markdown(response[1].get("summary"))
             st.subheader("Your words")
-            st.markdown(response[1].get("tanscript"))
+            st.markdown(response[1].get("transcript"))
         else:
             st.error(f"Error getting your journal for the date. Details: {response[1]}", icon="🚨")
 else:

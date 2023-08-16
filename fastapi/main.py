@@ -89,8 +89,10 @@ async def create_journal_entry(access_token: str = Form(...), audio_file: Upload
         journal_input = schemas.CreateAudioJournal(**journal_input)
         result = journal.create_audio_journal_entry(db, journal_input)
     except HTTPException as e:
+        print(f"Error: {str(e)}")
         raise e
     except Exception as e:
+        print(f"Error: {str(e)}")
         raise HTTPException(
                 status_code=500, detail=f"{str(e)}")
     return JSONResponse(content=result)
