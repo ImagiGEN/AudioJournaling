@@ -161,9 +161,6 @@ Explore the comprehensive documentation for our application, SoundJot, and unloc
 
 | Contributor    | Contibutions |
 | -------- | ------- |
-| Ashritha Goramane  |  |
-| Rishabh Indoria    | 	|
-| Parvati Sohani     |	|
-
-
-
+| Ashritha Goramane  | Jot Journal (Backend),  Audio Library (Backend), Chapters - Daily Summary, Mood Chart (Backend), User Management, DAG - Compute Metadata, Integration, IaC |
+| Rishabh Indoria    | DAG - Kaggle to GCS, GCS to Pinecone, Kaggle to Pinecone, Cloud Functions (Jot Journal)	|
+| Parvati Sohani     |	Jot Journal (UI), Audio Library (UI), Mood Chart (UI), Minidiagrams |
