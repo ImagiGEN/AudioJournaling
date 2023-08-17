@@ -19,13 +19,11 @@ with Diagram("Architecture", show=False):
     #pinecone = Custom("Store Embeddings", "./myresources/pinecone.jpeg")
     # huggingface = Custom("Huggingface Model", "./myresources/huggingface.png")
     # openai = Custom("LLM","./myresources/openai.png")
-    # kaggle = Custom("Dataset","./myresources/kaggle.png")
    # tensorflow = Custom("Model Training Pipeline", "./myresources/tensorflow.png")
     # datastore = Custom("Datastore","./myresources/gcs.png")
     #modelstore = Custom("Model store","./myresources/gcp.png")
     user  = Users("Users") 
     #database = SQL("Database")
-    #dag = Airflow("Store data DAG")
     # postgresql = Postgresql("RDBMS")
     #embeddings = Custom("Generate Embeddings","./myresources/embeddings.png")
     # prediction = Custom("Audio Emotion Prediction","./myresources/prediction.png")
@@ -59,10 +57,15 @@ with Diagram("Architecture", show=False):
         openai = Custom("LLM","./myresources/openai.png")
         huggingface = Custom("Huggingface Model", "./myresources/huggingface.png")
 
-
+    with Cluster("Data pipeline"):
+        kaggle = Custom("Dataset","./myresources/kaggle.png")
+        dag = Airflow("DAG")
+        dag >> Edge(label="Fetch audio datasets") << kaggle
     user >> Edge(label="(1) Jot Journal\nAudio Library\nChapters\nMood Chart (10)") << streamlit
     streamlit >> Edge(label="(2) Audio\nMetadata\n\n (9)Quote\nSummary") << fastapi
     fastapi >> Edge(label="(3) Audio file") - datastore
     fastapi >> Edge(label="(4) Audio Metadata") << dbms
     fastapi >> Edge(label="(5) Audio\n\n(6) Emotion") << panns_inf 
     fastapi >> Edge(label="(7) Transcript\nEmotion\n\n (8) Quote\nSummary") << openai
+    fastapi >> Edge() << dag 
+    dbms >> Edge(label="Dataset Metadata") << dag
