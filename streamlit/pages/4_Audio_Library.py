@@ -68,7 +68,7 @@ if auth_user[0]:
         st.write(display_df)
 
         # Allow user to select an audio file to play
-        selected_idx = st.selectbox("Select an audio file to play:", audio_df.index)
+        selected_idx = st.selectbox("Select an audio file to play:", display_df.index)
         selected_row = audio_df.loc[[selected_idx]].iloc[0]
         # Play the selected audio file
         with st.spinner("Downloading audio..."):
