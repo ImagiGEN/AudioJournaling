@@ -23,7 +23,7 @@ def create_audio_journal_entry(db: Session, user_input: schemas.CreateAudioJourn
     try:
         transcript, emotion = process_user_audio(db, destination_file_name)
     except Exception as e:
-        transcript, emotion = "", ""
+        transcript, emotion = "", "neutral"
     quote = llm.generate_suggestions(transcript, emotion)
     data = {
         "audio_id": db_audio.id,
@@ -51,8 +51,6 @@ def process_user_audio(db: Session, file_url):
     except Exception as e:
         print("Exception: ", str(e))
         emotion = huggingface.get_emotion(local_file_name)
-    finally:
-        emotion = ""
     return transcript, emotion
 
 def get_journal_by_date(db: Session, user_input: schemas.UserJournalByDate):

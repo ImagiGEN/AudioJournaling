@@ -24,4 +24,4 @@ def get_emotion(audio_file_wav):
             return output[0].get("label")
     except Exception as e:
         print({str(e)})
-        return ""
+        return "neutral"
