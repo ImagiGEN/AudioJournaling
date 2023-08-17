@@ -71,13 +71,15 @@ def add_audio_metadata(db: Session, audio: schemas.UserAudioMetadata):
 
 def get_journal_history(db: Session, user_input: schemas.UserAudioHistory):
     decoded_info = generic.decode_token(user_input.access_token)
-    db_audio_history = db.query(models.UserAudioMetadata).filter(decoded_info.get("user_id") == models.UserAudioMetadata.user_id).all()
+    db_audio_history = db.query(models.UserAudioMetadata).filter(decoded_info.get("user_id") == models.UserAudioMetadata.user_id,
+                                                                 models.UserAudioMetadata.timestamp.between(user_input.start_date, user_input.end_date)).all()
     result = [{
         "id": row.id, 
         "file_url": row.file_url, 
         "emotion": row.emotion,
         "transcript": row.transcript,
-        "timestamp": row.timestamp.isoformat()} for row in db_audio_history]
+        "timestamp": row.timestamp.isoformat(),
+        "quote": row.quote } for row in db_audio_history]
     return result
 
 def set_audio_details(db: Session, user_input: schemas.UserAudioDetails):
